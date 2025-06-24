@@ -3,8 +3,15 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import router from "./app/routes";
+import { Server } from "socket.io";
+
+
 
 const app: Application = express();
+
+
+
+
 app.use(
   cors({
     origin: [

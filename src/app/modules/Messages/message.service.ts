@@ -2,10 +2,13 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
 import { Message } from '@prisma/client';
+import { getSocket } from '../../utils/socket';
+
 
 // Send message between two users
 const sendMessage = async (senderId: string, payload: Message) => {
     // Check if both users exist
+    const time = new Date()
     payload.senderId = senderId
     await prisma.user.findUniqueOrThrow({ where: { id: payload.receiverId } })
 
@@ -15,9 +18,12 @@ const sendMessage = async (senderId: string, payload: Message) => {
             senderId: payload.senderId,
             receiverId: payload.receiverId,
             content: payload.content,
+            createdAt: time
         },
     });
-
+    const io = getSocket();
+    io.to(payload.receiverId).emit('message', message);
+    io.to(payload.senderId).emit('message', message);
     return message;
 };
 
